@@ -1,0 +1,5 @@
+# Reads names (files in format <reads_name>_1.fastq, <reads_name>_2.fastq)
+reads: John2014_Sviridis_BS_ERR385864
+
+# Genome name
+genome: Sitalica_312_v2.2
