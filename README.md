@@ -8,7 +8,7 @@ Snakemake pipeline for mapping RNA-seq reads to a genome.
 - Activate a conda environment with snakemake installed
 - Run the following command:
 ```
-snakemake -s RNA_seq_read_mapping_snakefile.smk --cores 10
+snakemake -s RNA_seq_read_mapping_snakefile.smk --cores 10 --use-conda
 ```
 #### Output:
 - Read quality reports in: ```fastqc/<reads>/```
