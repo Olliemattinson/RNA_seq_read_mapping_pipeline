@@ -3,7 +3,7 @@ configfile: 'RNA_seq_read_mapping_config.yaml'
 rule all:
     input:
         expand('{reads}_mapped_to_{genome}/{reads}_mapped_to_{genome}.bam.bai',reads=config['reads'],genome=config['genome']),
-        expand('fastqc/{reads}',reads=config['reads'])
+        expand('fastqc/{reads}/{reads}_2_fastqc.html',reads=config['reads'])
 
 rule read_quality_report:
     input:
@@ -12,11 +12,13 @@ rule read_quality_report:
     threads: 2
     conda:
         'envs/RNA_seq_read_mapping_env.yaml'
+    params:
+        output_stem='fastqc/{reads}'
     output:
-        'fastqc/{reads}'
+        'fastqc/{reads}/{reads}_2_fastqc.html'
     shell:
-        'mkdir {output};'
-        'fastqc {input.reads1} {input.reads2} --threads {threads} -o {output}'
+        'mkdir -p {params.output_stem};'
+        'fastqc {input.reads1} {input.reads2} --threads {threads} -o {params.output_stem}'
 
 rule trim_reads:
     input:
@@ -38,10 +40,6 @@ rule trim_reads:
         tu1=temp('data/trimmed_reads/{reads}_trimmed_unpaired_1.fq'),
         tp2=temp('data/trimmed_reads/{reads}_trimmed_paired_2.fq'),
         tu2=temp('data/trimmed_reads/{reads}_trimmed_unpaired_2.fq')
-        #tp1='data/trimmed_reads/{reads}_trimmed_paired_1.fq',
-        #tu1='data/trimmed_reads/{reads}_trimmed_unpaired_1.fq',
-        #tp2='data/trimmed_reads/{reads}_trimmed_paired_2.fq',
-        #tu2='data/trimmed_reads/{reads}_trimmed_unpaired_2.fq'
     shell:
         'trimmomatic PE -threads {threads} {input.reads1} {input.reads2} '
         '{output.tp1} {output.tu1} {output.tp2} {output.tu2} '
@@ -57,10 +55,12 @@ rule index_genome:
     conda:
         'envs/RNA_seq_read_mapping_env.yaml'
     params:
-        genome_index_stem='data/genomes/{genome}_genome_index}/{genome}_genome_index'
+        genome_index_dir='data/genomes/{genome}_genome_index',
+        genome_index_stem='data/genomes/{genome}_genome_index/{genome}_genome_index'
     output:
         dynamic('data/genomes/{genome}_genome_index/{genome}_genome_index.{n}.ht2')
     shell:
+        'mkdir -p {params.genome_index_dir};'
         'hisat2-build {input} {params.genome_index_stem} -p {threads}'
 
 rule map_reads:
@@ -90,7 +90,6 @@ rule SAM_to_BAM:
         'envs/RNA_seq_read_mapping_env.yaml'
     output:
         temp('{reads}_mapped_to_{genome}/{reads}_mapped_to_{genome}_unsorted.bam')
-        #'{reads}_mapped_to_{genome}/{reads}_mapped_to_{genome}_unsorted.bam'
     shell:
         'samtools view -S -b {input} > {output} -@ {threads}'
 
