@@ -77,7 +77,6 @@ rule map_reads:
         genome_index_stem='data/genomes/{genome}_genome_index/{genome}_genome_index'
     output:
         temp('{reads}_mapped_to_{genome}/{reads}_mapped_to_{genome}_unsorted.sam')
-        #'{reads}_mapped_to_{genome}/{reads}_mapped_to_{genome}_unsorted.sam'
     shell:
         'hisat2 -q -x {params.genome_index_stem} -1 {input.tp1} -2 {input.tp2} '
         '-U {input.tu1} -U {input.tu2} -S {output} -p {threads}'
