@@ -10,8 +10,10 @@ rule all:
 
 rule read_quality_report:
     input:
-        reads1='data/reads/{experiment}_{reads}_1.fastq',
-        reads2='data/reads/{experiment}_{reads}_2.fastq'
+        #reads1='data/reads/{experiment}_{reads}_1.fastq',
+        #reads2='data/reads/{experiment}_{reads}_2.fastq'
+        reads1='data/reads/{experiment}_{reads}_1.fq.gz',
+        reads2='data/reads/{experiment}_{reads}_2.fq.gz'
     threads: 2
     conda:
         'envs/RNA_seq_read_mapping_env.yaml'
@@ -26,8 +28,10 @@ rule read_quality_report:
 rule trim_reads:
     input:
         adaptors='all_adaptors.fasta',
-        reads1='data/reads/{experiment}_{reads}_1.fastq',
-        reads2='data/reads/{experiment}_{reads}_2.fastq'
+        #reads1='data/reads/{experiment}_{reads}_1.fastq',
+        #reads2='data/reads/{experiment}_{reads}_2.fastq'
+        reads1='data/reads/{experiment}_{reads}_1.fq.gz',
+        reads2='data/reads/{experiment}_{reads}_2.fq.gz'
     threads:10
     conda:
         'envs/RNA_seq_read_mapping_env.yaml'
@@ -61,7 +65,7 @@ rule index_genome:
         genome_index_dir='data/genomes/{genome}_genome_index',
         genome_index_stem='data/genomes/{genome}_genome_index/{genome}_genome_index'
     output:
-        dynamic('data/genomes/{genome}_genome_index/{genome}_genome_index.{n}.ht2')
+        'data/genomes/{genome}_genome_index/{genome}_genome_index.1.ht2'
     shell:
         'mkdir -p {params.genome_index_dir};'
         'hisat2-build {input} {params.genome_index_stem} -p {threads}'
@@ -72,7 +76,7 @@ rule map_reads:
         tu1='data/trimmed_reads/{experiment}_{reads}_trimmed_unpaired_1.fq',
         tp2='data/trimmed_reads/{experiment}_{reads}_trimmed_paired_2.fq',
         tu2='data/trimmed_reads/{experiment}_{reads}_trimmed_unpaired_2.fq',
-        genome_index_file=dynamic('data/genomes/{genome}_genome_index/{genome}_genome_index.{n}.ht2')
+        genome_index_file='data/genomes/{genome}_genome_index/{genome}_genome_index.1.ht2'
     threads: 10
     conda:
         'envs/RNA_seq_read_mapping_env.yaml'
