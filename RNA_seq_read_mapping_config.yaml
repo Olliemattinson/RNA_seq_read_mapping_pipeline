@@ -1,5 +1,11 @@
-# Reads names (files in format <reads_name>_1.fastq, <reads_name>_2.fastq)
-reads: John2014_Sviridis_BS_ERR385864
+# Reads files in format <experiment>_<reads>_1.fastq, <experiment>_<reads>_2.fastq
+# experiment name in format <publication>_<species>
+# reads name in format <condition>_<accession>
+
+experiment: John2014_Sviridis
+
+reads:
+  - BS_ERR385864
 
 # Genome name
 genome: Sitalica_312_v2.2
