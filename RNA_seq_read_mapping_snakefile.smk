@@ -2,7 +2,7 @@ configfile: 'RNA_seq_read_mapping_config.yaml'
 
 rule all:
     input:
-        expand('{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}.bam.bai',experiment=config['experiment'],reads=config['reads'],genome=config['genome']),
+        expand('data/mapped_reads/{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}.bam.bai',experiment=config['experiment'],reads=config['reads'],genome=config['genome']),
         expand('fastqc/{experiment}_{reads}/{experiment}_{reads}_2_fastqc.html',experiment=config['experiment'],reads=config['reads'])
     wildcard_constraints:
         experiment='[^_]+_[^_]+',
@@ -83,39 +83,39 @@ rule map_reads:
     params:
         genome_index_stem='data/genomes/{genome}_genome_index/{genome}_genome_index'
     output:
-        temp('{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}_unsorted.sam')
+        temp('data/mapped_reads/{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}_unsorted.sam')
     shell:
         'hisat2 -q -x {params.genome_index_stem} -1 {input.tp1} -2 {input.tp2} '
         '-U {input.tu1} -U {input.tu2} -S {output} -p {threads}'
 
 rule SAM_to_BAM:
     input:
-        '{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}_unsorted.sam'
+        'data/mapped_reads/{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}_unsorted.sam'
     threads: 10
     conda:
         'envs/RNA_seq_read_mapping_env.yaml'
     output:
-        temp('{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}_unsorted.bam')
+        temp('data/mapped_reads/{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}_unsorted.bam')
     shell:
         'samtools view -S -b {input} > {output} -@ {threads}'
 
 rule sort_mapped_reads:
     input:
-        '{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}_unsorted.bam'
+        'data/mapped_reads/{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}_unsorted.bam'
     threads: 10
     conda:
         'envs/RNA_seq_read_mapping_env.yaml'
     output:
-        '{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}.bam'
+        'data/mapped_reads/{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}.bam'
     shell:
         'samtools sort {input} -o {output} -@ {threads}'
 
 rule index_reads:
     input:
-        '{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}.bam'
+        'data/mapped_reads/{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}.bam'
     conda:
         'envs/RNA_seq_read_mapping_env.yaml'
     output:
-        '{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}.bam.bai'
+        'data/mapped_reads/{experiment}_{reads}_mapped_to_{genome}/{experiment}_{reads}_mapped_to_{genome}.bam.bai'
     shell:
         'samtools index {input}'
