@@ -12,8 +12,8 @@ snakemake -s RNA_seq_read_mapping_snakefile.smk --cores 10 --use-conda
 ```
 #### Output:
 - Read quality reports in: ```fastqc/<reads>/```
-- Mapped and sorted reads: ```<reads>_mapped_to_<genome>/<reads>_mapped_to_<genome>.bam```
-- Mapped and sorted reads index file: ```<reads>_mapped_to_<genome>/<reads>_mapped_to_<genome>.bam.bai```
+- Mapped and sorted reads: ```data/mapped_reads/<reads>_mapped_to_<genome>/<reads>_mapped_to_<genome>.bam```
+- Mapped and sorted reads index file: ```data/mapped_reads/<reads>_mapped_to_<genome>/<reads>_mapped_to_<genome>.bam.bai```
 
 
 #### Pipeline:
